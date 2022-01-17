@@ -1,0 +1,7 @@
+{
+  "name": "City-Driver-App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
