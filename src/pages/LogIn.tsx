@@ -1,4 +1,3 @@
-import { useEffect } from "react"
 import {
     IonButton,
     IonContent,
@@ -7,20 +6,19 @@ import {
     IonTitle,
     IonToolbar,
 } from "@ionic/react"
-import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks"
-import { login } from "../features/auth/auth-slice"
+import { useAppDispatch } from "../hooks/redux-hooks"
+import { login, logout } from "../features/auth/auth-slice"
+import { useDeliveriesQuery } from "../features/deliveries/deliveries-api-slice"
 import "./Home.css"
 
 const LogIn: React.FC = () => {
-    const { name, surname, email, avatarUrl } = useAppSelector(
-        (state) => state.auth.user
-    )
     const dispatch = useAppDispatch()
-    useEffect(() => {
-        console.log("name ", login)
-    }, [])
+    const { data, error, isLoading, isFetching, isSuccess } =
+        useDeliveriesQuery()
+
     return (
         <IonPage>
+            <div>{error && <h2>error</h2>}</div>
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>Blank</IonTitle>
@@ -47,6 +45,8 @@ const LogIn: React.FC = () => {
                 >
                     Login
                 </IonButton>
+
+                <IonButton onClick={() => dispatch(logout())}>Logout</IonButton>
             </IonContent>
         </IonPage>
     )
