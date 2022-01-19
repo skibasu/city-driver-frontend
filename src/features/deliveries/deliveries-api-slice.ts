@@ -4,7 +4,7 @@ import { IDelivery } from "../../models"
 export const deliveriesApi = createApi({
     reducerPath: "deliveriesApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:3000/api/v1",
+        baseUrl: "192.168.0.8:3000/api/v1/",
     }),
     endpoints: (builder) => ({
         deliveries: builder.query<IDelivery[], void>({

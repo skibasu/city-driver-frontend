@@ -1,18 +1,21 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { IAuthState, IUserRequest, IUserResponse } from "../../models"
+import axios from "../../axios"
 
-const URL = "http://localhost:6000/api/v1/auth/login"
-
-interface IUser {
-    isLogin: boolean
-    name: string | null
-    surname: string | null
-    email: string | null
-    avatarUrl: string | null
-}
-interface IAuthState {
-    user: IUser
-}
+export const logInUser = createAsyncThunk(
+    "auth/logIn",
+    async (userData: IUserRequest) => {
+        console.log(userData)
+        try {
+            const data: any = await axios.post("/auth/login", userData, {
+                withCredentials: true,
+            })
+            return (await data.data) as IUserResponse
+        } catch (error) {
+            console.log(error)
+        }
+    }
+)
 const initialState: IAuthState = {
     user: {
         isLogin: false,
@@ -20,6 +23,9 @@ const initialState: IAuthState = {
         surname: null,
         email: null,
         avatarUrl: null,
+        loading: false,
+        error: null,
+        token: null,
     },
 }
 
@@ -27,14 +33,32 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        login(state, action: PayloadAction<IUser>) {
-            state.user = action.payload
-        },
-        logout(state) {
+        logOutUser(state) {
             state.user = initialState.user
         },
     },
+
+    extraReducers: (builder) => {
+        builder.addCase(logInUser.pending, (state) => {
+            state.user.loading = true
+            state.user.error = null
+        })
+        builder.addCase(logInUser.fulfilled, (state, { payload }) => {
+            state.user.loading = false
+            state.user.error = null
+            state.user = {
+                ...state.user,
+                ...payload,
+                isLogin: !!payload?.token,
+            }
+        })
+        builder.addCase(logInUser.rejected, (state, { payload }) => {
+            state.user.loading = false
+            console.log(payload)
+            state.user.error = "Error from server"
+        })
+    },
 })
 
-export const { login, logout } = authSlice.actions
+export const { logOutUser } = authSlice.actions
 export default authSlice.reducer
